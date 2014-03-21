@@ -1,6 +1,7 @@
 from sqlalchemy.schema import Table, Column, ForeignKey
 from sqlalchemy.types import Integer, String
 from sqlalchemy.orm import relationship, mapper
+from sqlalchemy.ext.declarative import declarative_base
 
 from flask import Flask, url_for, abort, redirect
 from flask.ext.simplesqla import SimpleSQLA
@@ -12,6 +13,7 @@ app.config['SQLALCHEMY_ENGINE_ECHO'] = True
 
 db = SimpleSQLA(app)
 
+Base = declarative_base(metadata=db.metadata) # or just use db.Base
 
 # Address defined with mapper configuration
 addresses = Table('addresses', db.metadata,
@@ -23,7 +25,7 @@ addresses = Table('addresses', db.metadata,
 class Address(object):
     def __init__(self, email):
         self.email = email
-    
+
     def __str__(self):
         return self.email
 
@@ -31,7 +33,7 @@ mapper(Address, addresses)
 
 
 # User defined with declarative
-class User(db.Base):
+class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
@@ -40,7 +42,7 @@ class User(db.Base):
     password = Column(String)
 
     addresses = relationship(Address, backref='user', cascade='all, delete-orphan')
-    
+
     def url(self):
         return url_for('user_page', id=self.id, name=self.name)
 
@@ -48,8 +50,8 @@ class User(db.Base):
 def init_db():
     db.metadata.create_all(db.engine)
     admin = User(name="BlaXpirit", fullname="Oleh Prypin", password="dev", addresses=[Address('blaxpirit@gmail.com')])
-    db.session.add(admin)
-    db.session.commit()
+    db.add(admin)
+    db.commit()
 
 
 @app.route('/users/<int:id>/')
