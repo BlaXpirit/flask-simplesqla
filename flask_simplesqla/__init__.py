@@ -16,9 +16,7 @@ __all__ = ['SimpleSQLA']
 
 import sqlalchemy
 import sqlalchemy.orm
-import sqlalchemy.orm.exc
-import werkzeug.utils
-import flask
+from flask.helpers import locked_cached_property
 
 
 class SimpleSQLA(object):
@@ -47,14 +45,14 @@ class SimpleSQLA(object):
                     self.session.commit()
             self.session.remove()
 
-    @werkzeug.utils.cached_property
+    @locked_cached_property
     def metadata(self):
         """An `sqlalchemy.MetaData` object.
         Created upon first access.
         """
         return sqlalchemy.MetaData()
     
-    @werkzeug.utils.cached_property
+    @locked_cached_property
     def Base(self):
         """An instance of `sqlalchemy.ext.declarative.declarative_base` based on `self.metadata`.
         Created upon first access.
@@ -63,7 +61,7 @@ class SimpleSQLA(object):
         import sqlalchemy.ext.declarative
         return sqlalchemy.ext.declarative.declarative_base(metadata=self.metadata)
 
-    @werkzeug.utils.cached_property
+    @locked_cached_property
     def engine(self):
         """An `sqlalchemy.engine.Engine` object. Constructed using `sqlalchemy.engine_from_config` with options from
         application config starting with 'SQLALCHEMY_ENGINE_' and (with higher priority) `engine_options` dict supplied
@@ -76,7 +74,7 @@ class SimpleSQLA(object):
             raise KeyError("SQLALCHEMY_ENGINE_URL not provided")
         return sqlalchemy.engine_from_config(config, prefix='')
 
-    @werkzeug.utils.cached_property
+    @locked_cached_property
     def session(self):
         """An instance of `sqlalchemy.orm.scoped_session`. Constructed based on `self.engine` with options from 
         application config starting with 'SQLALCHEMY_SESSION_' and (with higher priority) `session_options` supplied to
