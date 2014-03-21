@@ -20,10 +20,8 @@ from flask.helpers import locked_cached_property
 
 
 class SimpleSQLA(object):
-    def __init__(self, app=None, engine_options={}, session_options={}):
+    def __init__(self, app=None):
         self.app = app
-        self._engine_options = engine_options
-        self._session_options = session_options
         if app is not None:
             self.init_app(app)
 
@@ -48,28 +46,28 @@ class SimpleSQLA(object):
     @locked_cached_property
     def metadata(self):
         """An `sqlalchemy.MetaData` object.
-        Created upon first access.
+        Created upon first access. If you overwrite this before accessing it, it will not be created.
         """
         return sqlalchemy.MetaData()
     
     @locked_cached_property
     def Base(self):
         """An instance of `sqlalchemy.ext.declarative.declarative_base` based on `self.metadata`.
-        Created upon first access.
-        Provided for convenience. You don't have to use this. You may create your own declarative base (and even
-        overwrite this one), just use the provided `metadata` to construct it."""
+        Created upon first access. If you overwrite this before accessing it, it will not be created.
+        """
         import sqlalchemy.ext.declarative
         return sqlalchemy.ext.declarative.declarative_base(metadata=self.metadata)
 
     @locked_cached_property
     def engine(self):
         """An `sqlalchemy.engine.Engine` object. Constructed using `sqlalchemy.engine_from_config` with options from
-        application config starting with 'SQLALCHEMY_ENGINE_' and (with higher priority) `engine_options` dict supplied
-        to the constructor.
-        Created upon first access.
+        application config starting with 'SQLALCHEMY_ENGINE_'.
+        Created upon first access. If you overwrite this before accessing it, it will not be created.
         """
-        config = _prefixed_config(self.app.config, 'SQLALCHEMY_ENGINE_')
-        config.update(self._engine_options)
+        try:
+            config = _prefixed_config(self.app.config, 'SQLALCHEMY_ENGINE_')
+        except AttributeError:
+            config = {}
         if 'url' not in config:
             raise KeyError("SQLALCHEMY_ENGINE_URL not provided")
         return sqlalchemy.engine_from_config(config, prefix='')
@@ -79,10 +77,14 @@ class SimpleSQLA(object):
         """An instance of `sqlalchemy.orm.scoped_session`. Constructed based on `self.engine` with options from 
         application config starting with 'SQLALCHEMY_SESSION_' and (with higher priority) `session_options` supplied to
         the constructor.
-        Created upon first access.
+        Created upon first access. If you overwrite this before accessing it, it will not be created.
+        Note that any missing attribute on the `SimpleSQLA` object will be redirected to `session` meaning you may write
+        `db.query` instead of `db.session.query`, etc.
         """
-        config = _prefixed_config(self.app.config, 'SQLALCHEMY_SESSION_')
-        config.update(self._session_options)
+        try:
+            config = _prefixed_config(self.app.config, 'SQLALCHEMY_SESSION_')
+        except AttributeError:
+            config = {}
         sessionmaker = sqlalchemy.orm.sessionmaker(self.engine, **config)
         return sqlalchemy.orm.scoped_session(sessionmaker)
 
