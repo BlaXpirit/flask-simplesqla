@@ -58,7 +58,7 @@ class SimpleSQLA(object):
     def Base(self):
         """An instance of `sqlalchemy.ext.declarative.declarative_base` based on `self.metadata`.
         Created upon first access.
-        Provided for convenience. You don't have to use this. You may create your own declarative base (and even 
+        Provided for convenience. You don't have to use this. You may create your own declarative base (and even
         overwrite this one), just use the provided `metadata` to construct it."""
         import sqlalchemy.ext.declarative
         return sqlalchemy.ext.declarative.declarative_base(metadata=self.metadata)
@@ -72,12 +72,14 @@ class SimpleSQLA(object):
         """
         config = _prefixed_config(self.app.config, 'SQLALCHEMY_ENGINE_')
         config.update(self._engine_options)
+        if 'url' not in config:
+            raise KeyError("SQLALCHEMY_ENGINE_URL not provided")
         return sqlalchemy.engine_from_config(config, prefix='')
 
     @werkzeug.utils.cached_property
     def session(self):
         """An instance of `sqlalchemy.orm.scoped_session`. Constructed based on `self.engine` with options from 
-        application config starting with 'SQLALCHEMY_SESSION_' and (with higher priority) `session_options` supplied to 
+        application config starting with 'SQLALCHEMY_SESSION_' and (with higher priority) `session_options` supplied to
         the constructor.
         Created upon first access.
         """
@@ -93,7 +95,7 @@ class SimpleSQLA(object):
 
 
 def _prefixed_config(config, prefix):
-    """Returns a dictionary containing only items from the supplied dictionary `config` which start with `prefix`, also 
+    """Returns a dictionary containing only items from the supplied dictionary `config` which start with `prefix`, also
     converting the key to lowercase and removing that prefix from it.
     
         _prefixed_config({'ONE': 1, 'MYPREFIX_TWO': 'MYPREFIX_'}) == {'two': 2}
