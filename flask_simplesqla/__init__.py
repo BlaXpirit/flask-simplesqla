@@ -21,13 +21,14 @@ from flask.helpers import locked_cached_property
 
 class SimpleSQLA(object):
     def __init__(self, app=None):
-        self.app = app
+        self.app = None
         if app is not None:
             self.init_app(app)
 
     def init_app(self, app):
         """Initializes the application with some default settings and teardown listener.
         """
+        self.app = app
         app.config.setdefault('SQLALCHEMY_COMMIT_ON_TEARDOWN', False)
         app.config.setdefault('SQLALCHEMY_ENGINE_CONVERT_UNICODE', True)
 
