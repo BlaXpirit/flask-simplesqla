@@ -5,11 +5,11 @@
 
     Extension providing basic support of SQLAlchemy in Flask applications
 
-    :copyright: (c) 2014 by Oleh Prypin <blaxpirit@gmail.com>
+    :copyright: (c) 2014-2015 by Oleh Prypin <blaxpirit@gmail.com>
     :license: BSD, see LICENSE for more details.
 """
 
-__version__ = '0.1-dev'
+__version__ = '1.0'
 
 __all__ = ['SimpleSQLA']
 
