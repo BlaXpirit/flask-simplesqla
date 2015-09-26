@@ -8,7 +8,7 @@ This module is meant to be a simple replacement for [Flask-SQLAlchemy][flask-sql
 The basic setup may look like this:
 
     from flask import Flask
-    from flask.ext.simplesqla import SimpleSQLA
+    from flask_simplesqla import SimpleSQLA
 
     app = Flask('__name__')
 
@@ -29,7 +29,7 @@ Your routes may look like this:
     @app.route('/users/<int:id>/<name>')
     def user_page(id, name=None):
         user = db.query(User).get(id) or abort(404)
-        if name!=user.name:
+        if name != user.name:
             return redirect(user.url())
         return render_template('user.html', user=user)
 

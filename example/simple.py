@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship, mapper
 from sqlalchemy.ext.declarative import declarative_base
 
 from flask import Flask, url_for, abort, redirect
-from flask.ext.simplesqla import SimpleSQLA
+from flask_simplesqla import SimpleSQLA
 
 app = Flask('__name__')
 
@@ -58,19 +58,19 @@ def init_db():
 @app.route('/users/<int:id>/<name>')
 def user_page(id, name=None):
     user = db.query(User).get(id) or abort(404)
-    if name!=user.name:
+    if name != user.name:
         return redirect(user.url())
     return '<h1>{0.name}</h1> <p>{0.fullname}</p> <p>{0.addresses[0]}</p>'.format(user)
 
 @app.route('/users/')
 def users_index():
     users = db.query(User)
-    return '<ul>'+''.join('<li><a href="{}">{}</a></li>'.format(user.url(), user.name) for user in users)+'</ul>'
+    return '<ul>' + ''.join('<li><a href="{}">{}</a></li>'.format(user.url(), user.name) for user in users) + '</ul>'
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import sys
-    if list(sys.argv[1:])==['init_db']:
+    if sys.argv[1:] == ['init_db']:
         init_db()
     else:
         app.run(debug=True)

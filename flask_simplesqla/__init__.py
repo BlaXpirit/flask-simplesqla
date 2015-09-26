@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flask.ext.simplesqla
-    ~~~~~~~~~~~~~~~~~~~~~~~
+    flask_simplesqla
+    ~~~~~~~~~~~~~~~~
 
     Extension providing basic support of SQLAlchemy in Flask applications
 
@@ -50,7 +50,7 @@ class SimpleSQLA(object):
         Created upon first access. If you overwrite this before accessing it, it will not be created.
         """
         return sqlalchemy.MetaData()
-    
+
     @locked_cached_property
     def Base(self):
         """An instance of `sqlalchemy.ext.declarative.declarative_base` based on `self.metadata`.
@@ -98,8 +98,8 @@ class SimpleSQLA(object):
 def _prefixed_config(config, prefix):
     """Returns a dictionary containing only items from the supplied dictionary `config` which start with `prefix`, also
     converting the key to lowercase and removing that prefix from it.
-    
-        _prefixed_config({'ONE': 1, 'MYPREFIX_TWO': 'MYPREFIX_'}) == {'two': 2}
+
+        _prefixed_config({'ONE': 1, 'MYPREFIX_TWO': 2}, 'MYPREFIX_') == {'two': 2}
     """
     result = {}
     for k, v in config.items():
